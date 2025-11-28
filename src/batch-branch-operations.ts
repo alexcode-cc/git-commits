@@ -1,6 +1,6 @@
 /**
  * Git 批次分支操作模組
- * 根據 git-commits.txt 批次創建或刪除分支
+ * 根據 git-commits.log 批次創建或刪除分支
  */
 
 import chalk from 'chalk';
@@ -29,7 +29,7 @@ export async function createBranches(
   options: BranchOperationOptions = {}
 ): Promise<OperationResult> {
   const {
-    commitsFile = 'git-commits.txt',
+    commitsFile = 'git-commits.log',
     startSeq,
     endSeq,
     skipConfirm = false,
@@ -177,7 +177,7 @@ export async function deleteBranches(
   options: BranchOperationOptions = {}
 ): Promise<OperationResult> {
   const {
-    commitsFile = 'git-commits.txt',
+    commitsFile = 'git-commits.log',
     startSeq,
     endSeq,
     skipConfirm = false,

@@ -12,6 +12,7 @@ Git commits 管理工具集 - 生成 commit 清單與批次分支操作
 - 🗑️ **批次刪除分支** - 根據序號範圍批次刪除分支
 - 📦 **可程式化使用** - 提供完整的 TypeScript API
 - 🖥️ **CLI 工具** - 提供便捷的命令列介面
+- 📝 **使用 .log 附檔名** - 預設輸出 `git-commits.log`，避免被 Git 追蹤
 
 ## 安裝
 
@@ -31,14 +32,14 @@ yarn global add @spec-kit/git-commits
 ### 生成 commit 清單
 
 ```bash
-# 使用預設設定（develop 分支，輸出到 git-commits.txt）
+# 使用預設設定（自動偵測分支，輸出到 git-commits.log）
 git-commits generate
 
 # 指定分支
 git-commits generate main
 
-# 指定輸出檔案
-git-commits generate develop -o my-commits.txt
+# 指定輸出檔案（會自動轉換為 .log 附檔名）
+git-commits generate develop -o my-commits.txt  # 實際輸出: my-commits.log
 
 # 包含 merge commits
 git-commits generate develop -m
@@ -51,7 +52,7 @@ git-commits generate develop -m
 git-commits create
 
 # 創建指定範圍的分支（0001 到 0010）
-git-commits create git-commits.txt 0001 0010
+git-commits create git-commits.log 0001 0010
 
 # 只創建單一分支（0080）
 git-commits create 0080
@@ -63,8 +64,11 @@ git-commits create 0001 0010 -y
 ### 批次刪除分支
 
 ```bash
+# 刪除所有分支（會列出清單並要求確認）
+git-commits delete
+
 # 刪除指定範圍的分支
-git-commits delete git-commits.txt 0001 0010
+git-commits delete git-commits.log 0001 0010
 
 # 只刪除單一分支
 git-commits delete 0080
@@ -87,12 +91,12 @@ import {
 // 生成 commit 清單
 const commits = await generateCommits({
   branch: 'develop',
-  outputFile: 'git-commits.txt',
+  outputFile: 'git-commits.log',
 });
 
 // 批次創建分支
 const createResult = await createBranches({
-  commitsFile: 'git-commits.txt',
+  commitsFile: 'git-commits.log',
   startSeq: 1,
   endSeq: 10,
   skipConfirm: true,
@@ -100,7 +104,7 @@ const createResult = await createBranches({
 
 // 批次刪除分支
 const deleteResult = await deleteBranches({
-  commitsFile: 'git-commits.txt',
+  commitsFile: 'git-commits.log',
   startSeq: 1,
   endSeq: 10,
   skipConfirm: true,
@@ -126,7 +130,7 @@ if (await isGitRepository()) {
 }
 
 // 解析 commits 檔案
-const commits = await parseCommitsFile('git-commits.txt');
+const commits = await parseCommitsFile('git-commits.log');
 
 // 篩選特定範圍
 const filtered = filterCommitsByRange(commits, 1, 10);
@@ -146,8 +150,8 @@ await deleteBranch('my-branch');
 
 ```typescript
 interface GenerateCommitsOptions {
-  branch?: string;        // 分支名稱（預設: 'develop'）
-  outputFile?: string;    // 輸出檔案（預設: 'git-commits.txt'）
+  branch?: string;        // 分支名稱（預設自動偵測: develop/main/master）
+  outputFile?: string;    // 輸出檔案（預設: 'git-commits.log'，會自動轉換為 .log）
   includeMerges?: boolean; // 是否包含 merge commits（預設: false）
 }
 
@@ -160,7 +164,7 @@ function generateCommits(options?: GenerateCommitsOptions): Promise<CommitInfo[]
 
 ```typescript
 interface BranchOperationOptions {
-  commitsFile?: string;   // Commits 檔案路徑（預設: 'git-commits.txt'）
+  commitsFile?: string;   // Commits 檔案路徑（預設: 'git-commits.log'）
   startSeq?: number;      // 起始序號
   endSeq?: number;        // 結束序號
   skipConfirm?: boolean;  // 是否跳過確認（預設: false）
@@ -198,7 +202,7 @@ interface OperationResult {
 
 ## 輸出格式
 
-生成的 `git-commits.txt` 格式：
+生成的 `git-commits.log` 格式：
 
 ```
 0001 5122da3 Initial commit
@@ -245,9 +249,9 @@ npm run typecheck
 npm run cli -- --help
 
 # 生成 commit 清單
-npm run cli:generate                           # 使用預設設定（develop 分支）
+npm run cli:generate                           # 使用預設設定（自動偵測分支）
 npm run cli:generate -- main                   # 指定 main 分支
-npm run cli:generate -- develop -o output.txt  # 指定輸出檔案
+npm run cli:generate -- develop -o output.txt  # 指定輸出檔案（會轉為 output.log）
 
 # 批次創建分支
 npm run cli:create                             # 創建所有分支

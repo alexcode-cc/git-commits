@@ -20,7 +20,7 @@ program
   .alias('gen')
   .description('生成指定分支的 commit 清單（未指定時自動偵測 develop/main/master）')
   .argument('[branch]', '分支名稱（預設自動偵測）')
-  .option('-o, --output <file>', '輸出檔案名稱', 'git-commits.txt')
+  .option('-o, --output <file>', '輸出檔案名稱', 'git-commits.log')
   .option('-m, --include-merges', '包含 merge commits', false)
   .action(async (branch: string | undefined, options: { output: string; includeMerges: boolean }) => {
     await generateCommitsCLI({
@@ -34,7 +34,7 @@ program
 program
   .command('create')
   .description('根據 commit 清單批次創建分支')
-  .argument('[file]', 'commit 清單檔案', 'git-commits.txt')
+  .argument('[file]', 'commit 清單檔案', 'git-commits.log')
   .argument('[start]', '起始序號（例如: 0001 或 1）')
   .argument('[end]', '結束序號（可選）')
   .option('-y, --yes', '跳過確認提示', false)
@@ -55,7 +55,7 @@ program
         if (start && /^\d+$/.test(start)) {
           endSeq = parseInt(start, 10);
         }
-        file = 'git-commits.txt';
+        file = 'git-commits.log';
       } else {
         if (start) {
           startSeq = parseInt(start, 10);
@@ -87,7 +87,7 @@ program
   .command('delete')
   .alias('del')
   .description('根據 commit 清單批次刪除分支（未指定序號時刪除全部）')
-  .argument('[file]', 'commit 清單檔案', 'git-commits.txt')
+  .argument('[file]', 'commit 清單檔案', 'git-commits.log')
   .argument('[start]', '起始序號（例如: 0001 或 1，未指定則刪除全部）')
   .argument('[end]', '結束序號（可選）')
   .option('-y, --yes', '跳過確認提示', false)
@@ -108,7 +108,7 @@ program
         if (start && /^\d+$/.test(start)) {
           endSeq = parseInt(start, 10);
         }
-        file = 'git-commits.txt';
+        file = 'git-commits.log';
       } else {
         if (start) {
           startSeq = parseInt(start, 10);
@@ -141,9 +141,9 @@ program.on('--help', () => {
   console.log('範例:');
   console.log('  $ git-commits generate develop');
   console.log('  $ git-commits generate main -o my-commits.txt');
-  console.log('  $ git-commits create git-commits.txt 0001 0010');
+  console.log('  $ git-commits create git-commits.log 0001 0010');
   console.log('  $ git-commits create 0080');
-  console.log('  $ git-commits delete git-commits.txt 0001 0010');
+  console.log('  $ git-commits delete git-commits.log 0001 0010');
   console.log('  $ git-commits delete 0080');
 });
 

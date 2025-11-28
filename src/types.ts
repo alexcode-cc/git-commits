@@ -22,7 +22,7 @@ export interface CommitInfo {
 export interface GenerateCommitsOptions {
   /** 分支名稱（預設: develop） */
   branch?: string;
-  /** 輸出檔案路徑（預設: git-commits.txt） */
+  /** 輸出檔案路徑（預設: git-commits.log） */
   outputFile?: string;
   /** 是否包含 merge commits（預設: false） */
   includeMerges?: boolean;

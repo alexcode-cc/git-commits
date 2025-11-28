@@ -4,6 +4,7 @@
  */
 
 import chalk from 'chalk';
+import { basename, dirname, extname, join } from 'path';
 import type { GenerateCommitsOptions, CommitInfo } from './types.js';
 import {
   isGitRepository,
@@ -12,6 +13,21 @@ import {
 } from './utils/git.js';
 import { formatCommits, writeCommitsFile } from './utils/file.js';
 import { printSeparator } from './utils/prompt.js';
+
+/**
+ * 確保檔案名稱使用 .log 附檔名
+ * @param filePath 檔案路徑
+ * @returns 使用 .log 附檔名的檔案路徑
+ */
+function ensureLogExtension(filePath: string): string {
+  const ext = extname(filePath);
+  if (ext.toLowerCase() === '.log') {
+    return filePath;
+  }
+  const dir = dirname(filePath);
+  const name = basename(filePath, ext);
+  return dir === '.' ? `${name}.log` : join(dir, `${name}.log`);
+}
 
 /** 預設分支優先順序 */
 const DEFAULT_BRANCHES = ['develop', 'main', 'master'];
@@ -40,9 +56,12 @@ export async function generateCommits(
 ): Promise<CommitInfo[]> {
   const {
     branch,
-    outputFile = 'git-commits.txt',
+    outputFile: rawOutputFile = 'git-commits.log',
     includeMerges = false,
   } = options;
+
+  // 確保輸出檔案使用 .log 附檔名
+  const outputFile = ensureLogExtension(rawOutputFile);
 
   // 檢查是否在 Git 儲存庫中
   if (!(await isGitRepository())) {

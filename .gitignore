@@ -36,5 +36,5 @@ coverage/
 # yarn.lock
 
 # Generated commit files (user-generated)
-git-commits.txt
+# git-commits.log 會被 *.log 規則自動排除
 
