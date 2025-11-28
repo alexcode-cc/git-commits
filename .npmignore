@@ -1,0 +1,37 @@
+# Source files
+src/
+
+# Config files
+tsconfig.json
+vite.config.ts
+.eslintrc*
+.prettierrc*
+
+# Development files
+*.py
+*.ps1
+
+# Documentation (except README)
+README-git-commits.md
+
+# IDE
+.vscode/
+.idea/
+
+# Test
+__tests__/
+*.test.ts
+*.spec.ts
+coverage/
+
+# Development dependencies
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
