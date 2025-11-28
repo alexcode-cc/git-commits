@@ -49,15 +49,19 @@ def format_commits(commits):
     """將 commit 列表格式化為指定格式"""
     formatted = []
     for i, commit in enumerate(commits, start=1):
-        # 序號補零到 3 位數
-        num = f"{i:03d}"
+        # 序號補零到 4 位數
+        num = f"{i:04d}"
         formatted.append(f"{num} {commit}")
     return formatted
 
 
 def write_output(formatted_commits, output_file='git-commits.txt'):
-    """將格式化後的 commit 寫入檔案"""
+    """將格式化後的 commit 寫入檔案
+    
+    注意：此函數會無條件覆蓋現有檔案（如果存在）
+    """
     try:
+        # 使用 'w' 模式會無條件覆蓋現有檔案
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write('\n'.join(formatted_commits))
         print(f"✓ 成功生成 {output_file}")

@@ -79,13 +79,14 @@ try {
     $formattedCommits = @()
     $index = 1
     foreach ($commit in $commits) {
-        $num = $index.ToString().PadLeft(3, '0')
+        $num = $index.ToString().PadLeft(4, '0')
         $formattedCommits += "$num $commit"
         $index++
     }
     
-    # 寫入檔案
+    # 寫入檔案（無條件覆蓋現有檔案）
     try {
+        # Out-File 預設會覆蓋現有檔案
         $formattedCommits -join "`n" | Out-File -FilePath $OutputFile -Encoding utf8 -NoNewline
         Write-Host "✓ 成功生成 $OutputFile" -ForegroundColor Green
         Write-Host "  共 $($formattedCommits.Count) 個 commit" -ForegroundColor Green

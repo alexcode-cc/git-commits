@@ -3,27 +3,34 @@
 #
 # 使用方法:
 #     創建分支:
-#         .\batch-branch-operations.ps1 create [git-commits.txt] [起始序號-結束序號]
+#         .\batch-branch-operations.ps1 create [git-commits.txt] [起始序號] [結束序號]
 #     
 #     刪除分支:
-#         .\batch-branch-operations.ps1 delete [git-commits.txt] [起始序號-結束序號]
-#         例如: .\batch-branch-operations.ps1 delete git-commits.txt 001-010
+#         .\batch-branch-operations.ps1 delete [git-commits.txt] [起始序號] [結束序號]
+#         例如: .\batch-branch-operations.ps1 delete git-commits.txt 0001 0010
 #
 # 參數:
 #     create: 批次創建分支
 #     delete: 批次刪除分支
 #     git-commits.txt: commit 清單檔案（預設: git-commits.txt）
-#     起始序號-結束序號: 要創建或刪除的分支範圍，例如 001-005（不指定則處理全部）
+#     起始序號: 要處理的起始序號（例如: 0080）
+#     結束序號: 要處理的結束序號（可選，不指定則只處理起始序號）
 #
 # 範例:
-#     # 創建 001 到 005 的分支（用於測試）
-#     .\batch-branch-operations.ps1 create git-commits.txt 001-005
+#     # 創建 0001 到 0005 的分支（用於測試）
+#     .\batch-branch-operations.ps1 create git-commits.txt 0001 0005
+#     
+#     # 只創建 0080 這個分支
+#     .\batch-branch-operations.ps1 create git-commits.txt 0080
 #     
 #     # 創建所有分支
 #     .\batch-branch-operations.ps1 create git-commits.txt
 #     
-#     # 刪除 001 到 010 的分支
-#     .\batch-branch-operations.ps1 delete git-commits.txt 001-010
+#     # 刪除 0001 到 0010 的分支
+#     .\batch-branch-operations.ps1 delete git-commits.txt 0001 0010
+#     
+#     # 只刪除 0080 這個分支
+#     .\batch-branch-operations.ps1 delete git-commits.txt 0080
 
 param(
     [Parameter(Mandatory=$true)]
@@ -99,7 +106,8 @@ function Parse-CommitsFile {
 function Create-Branches {
     param(
         [array]$Commits,
-        [string]$RangeArg = $null
+        [int]$StartSeq = -1,
+        [int]$EndSeq = -1
     )
     
     Test-GitRepo
@@ -110,33 +118,37 @@ function Create-Branches {
     }
     
     # 解析範圍或使用全部
-    if ($RangeArg) {
-        # 解析範圍格式: 001-005
-        if ($RangeArg -match '^(\d+)-(\d+)$') {
-            $startSeq = [int]$matches[1]
-            $endSeq = [int]$matches[2]
-            
-            if ($startSeq -gt $endSeq) {
-                Write-Host "錯誤: 起始序號不能大於結束序號" -ForegroundColor Red
-                exit 1
-            }
-            
-            # 篩選要創建的分支
-            $commitsToCreate = $Commits | Where-Object {
-                $seqNum = [int]$_.Seq
-                $seqNum -ge $startSeq -and $seqNum -le $endSeq
-            }
-            
-            if ($commitsToCreate.Count -eq 0) {
-                Write-Host "錯誤: 找不到序號範圍 $($startSeq.ToString('000'))-$($endSeq.ToString('000')) 的 commit" -ForegroundColor Red
-                exit 1
-            }
-            
-            $Commits = $commitsToCreate
-            Write-Host "範圍: $($startSeq.ToString('000')) 到 $($endSeq.ToString('000'))" -ForegroundColor Cyan
-        } else {
-            Write-Host "錯誤: 範圍格式錯誤，應為: 起始序號-結束序號 (例如: 001-005)" -ForegroundColor Red
+    if ($StartSeq -ge 0) {
+        # 如果只指定了起始序號，則只處理該序號
+        if ($EndSeq -lt 0) {
+            $EndSeq = $StartSeq
+        }
+        
+        if ($StartSeq -gt $EndSeq) {
+            Write-Host "錯誤: 起始序號不能大於結束序號" -ForegroundColor Red
             exit 1
+        }
+        
+        # 篩選要創建的分支
+        $commitsToCreate = $Commits | Where-Object {
+            $seqNum = [int]$_.Seq
+            $seqNum -ge $StartSeq -and $seqNum -le $EndSeq
+        }
+        
+        if ($commitsToCreate.Count -eq 0) {
+            if ($StartSeq -eq $EndSeq) {
+                Write-Host "錯誤: 找不到序號 $($StartSeq.ToString('0000')) 的 commit" -ForegroundColor Red
+            } else {
+                Write-Host "錯誤: 找不到序號範圍 $($StartSeq.ToString('0000')) 到 $($EndSeq.ToString('0000')) 的 commit" -ForegroundColor Red
+            }
+            exit 1
+        }
+        
+        $Commits = $commitsToCreate
+        if ($StartSeq -eq $EndSeq) {
+            Write-Host "序號: $($StartSeq.ToString('0000'))" -ForegroundColor Cyan
+        } else {
+            Write-Host "範圍: $($StartSeq.ToString('0000')) 到 $($EndSeq.ToString('0000'))" -ForegroundColor Cyan
         }
     }
     
@@ -153,6 +165,7 @@ function Create-Branches {
     
     $successCount = 0
     $failCount = 0
+    $skippedBranches = @()  # 記錄因為已存在而跳過的分支
     
     foreach ($commit in $Commits) {
         $branchName = $commit.BranchName
@@ -174,7 +187,8 @@ function Create-Branches {
             } else {
                 $errorOutput = git checkout -b $branchName $commitHash 2>&1 | Out-String
                 if ($errorOutput -match 'already exists' -or $errorOutput -match '已存在') {
-                    Write-Host "⚠ (分支已存在)" -ForegroundColor Yellow
+                    Write-Host "⚠ (分支已存在，跳過)" -ForegroundColor Yellow
+                    $skippedBranches += @{Seq = $seq; BranchName = $branchName}
                 } else {
                     Write-Host "✗ 錯誤" -ForegroundColor Red
                     $failCount++
@@ -188,6 +202,14 @@ function Create-Branches {
     
     Write-Host ("-" * 50)
     Write-Host "完成！成功: $successCount, 失敗: $failCount" -ForegroundColor Cyan
+    
+    # 顯示跳過的分支
+    if ($skippedBranches.Count -gt 0) {
+        Write-Host "`n跳過的分支（因為已存在）: $($skippedBranches.Count) 個" -ForegroundColor Yellow
+        foreach ($branch in $skippedBranches) {
+            Write-Host "  - [$($branch.Seq)] $($branch.BranchName)" -ForegroundColor Yellow
+        }
+    }
 }
 
 # 批次刪除分支
@@ -195,10 +217,15 @@ function Delete-Branches {
     param(
         [array]$Commits,
         [int]$StartSeq,
-        [int]$EndSeq
+        [int]$EndSeq = -1
     )
     
     Test-GitRepo
+    
+    # 如果只指定了起始序號，則只處理該序號
+    if ($EndSeq -lt 0) {
+        $EndSeq = $StartSeq
+    }
     
     if ($StartSeq -gt $EndSeq) {
         Write-Host "錯誤: 起始序號不能大於結束序號" -ForegroundColor Red
@@ -212,12 +239,20 @@ function Delete-Branches {
     }
     
     if ($branchesToDelete.Count -eq 0) {
-        Write-Host "錯誤: 找不到序號範圍 $($StartSeq.ToString('000'))-$($EndSeq.ToString('000')) 的分支" -ForegroundColor Red
+        if ($StartSeq -eq $EndSeq) {
+            Write-Host "錯誤: 找不到序號 $($StartSeq.ToString('0000')) 的分支" -ForegroundColor Red
+        } else {
+            Write-Host "錯誤: 找不到序號範圍 $($StartSeq.ToString('0000')) 到 $($EndSeq.ToString('0000')) 的分支" -ForegroundColor Red
+        }
         exit 1
     }
     
     Write-Host "準備刪除 $($branchesToDelete.Count) 個分支" -ForegroundColor Cyan
-    Write-Host "範圍: $($StartSeq.ToString('000')) 到 $($EndSeq.ToString('000'))" -ForegroundColor Cyan
+    if ($StartSeq -eq $EndSeq) {
+        Write-Host "序號: $($StartSeq.ToString('0000'))" -ForegroundColor Cyan
+    } else {
+        Write-Host "範圍: $($StartSeq.ToString('0000')) 到 $($EndSeq.ToString('0000'))" -ForegroundColor Cyan
+    }
     Write-Host ("-" * 50)
     
     # 顯示將要刪除的分支
@@ -237,6 +272,7 @@ function Delete-Branches {
     
     $successCount = 0
     $failCount = 0
+    $skippedBranches = @()  # 記錄無法刪除的分支
     
     foreach ($commit in $branchesToDelete) {
         $branchName = $commit.BranchName
@@ -254,12 +290,14 @@ function Delete-Branches {
                         $currentBranch = 'main'
                     } else {
                         Write-Host "錯誤: 無法切換分支，請手動切換後再刪除 $branchName" -ForegroundColor Red
+                        $skippedBranches += @{Seq = $seq; BranchName = $branchName; Reason = '無法切換分支'}
                         $failCount++
                         continue
                     }
                 }
             } catch {
                 Write-Host "錯誤: 無法切換分支，請手動切換後再刪除 $branchName" -ForegroundColor Red
+                $skippedBranches += @{Seq = $seq; BranchName = $branchName; Reason = '無法切換分支'}
                 $failCount++
                 continue
             }
@@ -275,33 +313,75 @@ function Delete-Branches {
             } else {
                 $errorOutput = git branch -D $branchName 2>&1 | Out-String
                 if ($errorOutput -match 'not found' -or $errorOutput -match '找不到') {
-                    Write-Host "⚠ (分支不存在)" -ForegroundColor Yellow
+                    Write-Host "⚠ (分支不存在，跳過)" -ForegroundColor Yellow
                 } else {
-                    Write-Host "✗ 錯誤" -ForegroundColor Red
+                    Write-Host "✗ (無法刪除，跳過)" -ForegroundColor Red
+                    $reason = ($errorOutput -split "`n")[0].Trim()
+                    if ([string]::IsNullOrWhiteSpace($reason)) {
+                        $reason = '未知原因'
+                    }
+                    $skippedBranches += @{Seq = $seq; BranchName = $branchName; Reason = $reason}
                     $failCount++
                 }
             }
         } catch {
-            Write-Host "✗ 錯誤: $_" -ForegroundColor Red
+            Write-Host "✗ (無法刪除，跳過)" -ForegroundColor Red
+            $skippedBranches += @{Seq = $seq; BranchName = $branchName; Reason = $_.ToString()}
             $failCount++
         }
     }
     
     Write-Host ("-" * 50)
     Write-Host "完成！成功: $successCount, 失敗: $failCount" -ForegroundColor Cyan
+    
+    # 顯示無法刪除的分支
+    if ($skippedBranches.Count -gt 0) {
+        Write-Host "`n無法刪除的分支: $($skippedBranches.Count) 個" -ForegroundColor Yellow
+        foreach ($branch in $skippedBranches) {
+            Write-Host "  - [$($branch.Seq)] $($branch.BranchName) ($($branch.Reason))" -ForegroundColor Yellow
+        }
+    }
 }
 
 # 主程式
 # 解析參數（PowerShell 參數處理）
+$startSeq = -1
+$endSeq = -1
+
 if ($args.Count -gt 0) {
     # 如果第一個參數是檔案名稱
     if ($args[0] -and (Test-Path $args[0]) -and $args[0].EndsWith('.txt')) {
         $CommitsFile = $args[0]
+        # 從第二個參數開始可能是序號
         if ($args.Count -gt 1) {
-            $ExtraArg = $args[1]
+            if ([int]::TryParse($args[1], [ref]$startSeq)) {
+                if ($args.Count -gt 2) {
+                    if (-not [int]::TryParse($args[2], [ref]$endSeq)) {
+                        Write-Host "錯誤: 結束序號必須是數字" -ForegroundColor Red
+                        exit 1
+                    }
+                }
+            } else {
+                Write-Host "錯誤: 起始序號必須是數字" -ForegroundColor Red
+                Write-Host "使用方式: .\batch-branch-operations.ps1 create git-commits.txt [起始序號] [結束序號]" -ForegroundColor Yellow
+                Write-Host "範例: .\batch-branch-operations.ps1 create git-commits.txt 0080 0100" -ForegroundColor Yellow
+                Write-Host "範例: .\batch-branch-operations.ps1 create git-commits.txt 0080  (只處理 0080)" -ForegroundColor Yellow
+                exit 1
+            }
         }
     } elseif ($args[0] -and -not $args[0].EndsWith('.txt')) {
-        $ExtraArg = $args[0]
+        # 第一個參數就是序號
+        if ([int]::TryParse($args[0], [ref]$startSeq)) {
+            if ($args.Count -gt 1) {
+                if (-not [int]::TryParse($args[1], [ref]$endSeq)) {
+                    Write-Host "錯誤: 結束序號必須是數字" -ForegroundColor Red
+                    exit 1
+                }
+            }
+        } else {
+            Write-Host "錯誤: 起始序號必須是數字" -ForegroundColor Red
+            exit 1
+        }
     }
 }
 
@@ -315,29 +395,12 @@ if ($commits.Count -eq 0) {
 Write-Host "已讀取 $($commits.Count) 個 commit" -ForegroundColor Green
 
 if ($Operation -eq 'create') {
-    # 如果指定了範圍，驗證格式
-    if ($ExtraArg) {
-        if ($ExtraArg -notmatch '^(\d+)-(\d+)$') {
-            Write-Host "錯誤: 範圍格式錯誤，應為: 起始序號-結束序號 (例如: 001-005)" -ForegroundColor Red
-            Write-Host "提示: 如果不指定範圍，將創建所有分支" -ForegroundColor Yellow
-            exit 1
-        }
-    }
-    Create-Branches -Commits $commits -RangeArg $ExtraArg
+    Create-Branches -Commits $commits -StartSeq $startSeq -EndSeq $endSeq
 } elseif ($Operation -eq 'delete') {
-    if (-not $ExtraArg) {
-        Write-Host "錯誤: 刪除操作需要指定範圍，例如: 001-010" -ForegroundColor Red
+    if ($startSeq -lt 0) {
+        Write-Host "錯誤: 刪除操作需要指定序號，例如: 0001 或 0001 0010" -ForegroundColor Red
         exit 1
     }
-    
-    # 解析範圍格式: 001-010
-    if ($ExtraArg -match '^(\d+)-(\d+)$') {
-        $startSeq = [int]$matches[1]
-        $endSeq = [int]$matches[2]
-        Delete-Branches -Commits $commits -StartSeq $startSeq -EndSeq $endSeq
-    } else {
-        Write-Host "錯誤: 範圍格式錯誤，應為: 起始序號-結束序號 (例如: 001-010)" -ForegroundColor Red
-        exit 1
-    }
+    Delete-Branches -Commits $commits -StartSeq $startSeq -EndSeq $endSeq
 }
 
