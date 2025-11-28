@@ -226,14 +226,53 @@ interface OperationResult {
 # 安裝依賴
 npm install
 
-# 開發模式（監聽檔案變更）
-npm run dev
-
-# 建置
+# 建置專案
 npm run build
+
+# 開發模式（監聽檔案變更自動重新建置）
+npm run dev
 
 # 類型檢查
 npm run typecheck
+```
+
+### 開發模式測試 CLI
+
+建置完成後，可以使用以下指令直接測試 CLI 功能：
+
+```bash
+# 顯示 CLI 說明
+npm run cli -- --help
+
+# 生成 commit 清單
+npm run cli:generate                           # 使用預設設定（develop 分支）
+npm run cli:generate -- main                   # 指定 main 分支
+npm run cli:generate -- develop -o output.txt  # 指定輸出檔案
+
+# 批次創建分支
+npm run cli:create                             # 創建所有分支
+npm run cli:create -- 0001 0010                # 創建序號 0001 到 0010 的分支
+npm run cli:create -- 0080                     # 只創建序號 0080 的分支
+npm run cli:create -- 0001 0010 -y             # 跳過確認提示
+
+# 批次刪除分支
+npm run cli:delete -- 0001 0010                # 刪除序號 0001 到 0010 的分支
+npm run cli:delete -- 0080                     # 只刪除序號 0080 的分支
+npm run cli:delete -- 0001 0010 -y             # 跳過確認提示
+```
+
+> **注意**: 使用 `npm run` 傳遞參數時，需要在參數前加上 `--` 分隔符號。
+
+### 直接執行 CLI
+
+也可以直接使用 Node.js 執行：
+
+```bash
+# 直接執行 CLI
+node dist/cli.js --help
+node dist/cli.js generate main
+node dist/cli.js create 0001 0010
+node dist/cli.js delete 0080 -y
 ```
 
 ## 授權

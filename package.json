@@ -28,7 +28,11 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "cli": "node dist/cli.js",
+    "cli:generate": "node dist/cli.js generate",
+    "cli:create": "node dist/cli.js create",
+    "cli:delete": "node dist/cli.js delete"
   },
   "keywords": [
     "git",
