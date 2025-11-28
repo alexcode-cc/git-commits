@@ -27,8 +27,8 @@ python git-commits/generate-git-commits.py develop
 ### 2. 批次創建分支
 
 ```bash
-# 創建前 5 個分支（測試用）
-python git-commits/batch-branch-operations.py create git-commits/git-commits.txt 5
+# 創建 001 到 010 的分支（測試用）
+python git-commits/batch-branch-operations.py create git-commits/git-commits.txt 001-010
 
 # 創建所有分支
 python git-commits/batch-branch-operations.py create git-commits/git-commits.txt

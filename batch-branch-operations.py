@@ -6,7 +6,7 @@ Git 批次分支操作工具
 
 使用方法:
     創建分支:
-        python batch-branch-operations.py create [git-commits.txt] [數量]
+        python batch-branch-operations.py create [git-commits.txt] [起始序號-結束序號]
     
     刪除分支:
         python batch-branch-operations.py delete [git-commits.txt] [起始序號-結束序號]
@@ -16,12 +16,11 @@ Git 批次分支操作工具
     create: 批次創建分支
     delete: 批次刪除分支
     git-commits.txt: commit 清單檔案（預設: git-commits.txt）
-    數量: 要創建的分支數量（預設: 全部）
-    起始序號-結束序號: 要刪除的分支範圍，例如 001-010
+    起始序號-結束序號: 要創建或刪除的分支範圍，例如 001-005（不指定則處理全部）
 
 範例:
-    # 創建前 5 個分支（用於測試）
-    python batch-branch-operations.py create git-commits.txt 5
+    # 創建 001 到 005 的分支（用於測試）
+    python batch-branch-operations.py create git-commits.txt 001-005
     
     # 創建所有分支
     python batch-branch-operations.py create git-commits.txt
@@ -84,7 +83,7 @@ def get_current_branch():
         return None
 
 
-def create_branches(commits, count=None):
+def create_branches(commits, range_arg=None):
     """批次創建分支"""
     check_git_repo()
     
@@ -92,14 +91,33 @@ def create_branches(commits, count=None):
     if not current_branch:
         print("警告: 無法確定當前分支，將繼續執行")
     
-    # 限制數量
-    if count:
-        try:
-            count = int(count)
-            commits = commits[:count]
-        except ValueError:
-            print(f"錯誤: 無效的數量參數: {count}")
+    # 解析範圍或使用全部
+    if range_arg:
+        # 解析範圍格式: 001-005
+        range_match = re.match(r'(\d+)-(\d+)', range_arg)
+        if not range_match:
+            print("錯誤: 範圍格式錯誤，應為: 起始序號-結束序號 (例如: 001-005)")
             sys.exit(1)
+        
+        start_seq = int(range_match.group(1))
+        end_seq = int(range_match.group(2))
+        if start_seq > end_seq:
+            print("錯誤: 起始序號不能大於結束序號")
+            sys.exit(1)
+        
+        # 篩選要創建的分支
+        commits_to_create = []
+        for commit in commits:
+            seq_num = int(commit['seq'])
+            if start_seq <= seq_num <= end_seq:
+                commits_to_create.append(commit)
+        
+        if not commits_to_create:
+            print(f"錯誤: 找不到序號範圍 {start_seq:03d}-{end_seq:03d} 的 commit")
+            sys.exit(1)
+        
+        commits = commits_to_create
+        print(f"範圍: {start_seq:03d} 到 {end_seq:03d}")
     
     print(f"準備創建 {len(commits)} 個分支")
     print(f"當前分支: {current_branch or '未知'}")
@@ -260,6 +278,14 @@ def main():
     print(f"已讀取 {len(commits)} 個 commit")
     
     if operation == 'create':
+        # 如果沒有指定範圍，創建所有分支
+        if extra_arg:
+            # 驗證範圍格式
+            range_match = re.match(r'(\d+)-(\d+)', extra_arg)
+            if not range_match:
+                print("錯誤: 範圍格式錯誤，應為: 起始序號-結束序號 (例如: 001-005)")
+                print("提示: 如果不指定範圍，將創建所有分支")
+                sys.exit(1)
         create_branches(commits, extra_arg)
     elif operation == 'delete':
         if not extra_arg:

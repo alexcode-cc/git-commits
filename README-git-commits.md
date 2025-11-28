@@ -93,7 +93,7 @@ cd git-commits
 ### 功能
 
 - **批次創建分支**: 根據 commit 清單自動創建分支，分支名稱格式為 `序號-commit-hash`
-- **可指定數量**: 支援只創建前 N 個分支，方便測試
+- **可指定範圍**: 支援指定序號範圍創建分支（例如：001-005），方便測試
 - **批次刪除分支**: 根據序號範圍批次刪除分支
 - **安全確認**: 執行前會要求確認，避免誤操作
 
@@ -102,8 +102,8 @@ cd git-commits
 #### Python 版本
 
 ```bash
-# 在專案根目錄執行，創建前 5 個分支（用於測試）
-python git-commits/batch-branch-operations.py create git-commits/git-commits.txt 5
+# 在專案根目錄執行，創建 001 到 010 的分支（用於測試）
+python git-commits/batch-branch-operations.py create git-commits/git-commits.txt 001-010
 
 # 創建所有分支
 python git-commits/batch-branch-operations.py create git-commits/git-commits.txt
@@ -113,14 +113,14 @@ python git-commits/batch-branch-operations.py delete git-commits/git-commits.txt
 
 # 或者進入 git-commits 目錄執行
 cd git-commits
-python batch-branch-operations.py create git-commits.txt 5
+python batch-branch-operations.py create git-commits.txt 001-010
 ```
 
 #### PowerShell 版本
 
 ```powershell
-# 在專案根目錄執行，創建前 5 個分支（用於測試）
-.\git-commits\batch-branch-operations.ps1 create git-commits\git-commits.txt 5
+# 在專案根目錄執行，創建 001 到 010 的分支（用於測試）
+.\git-commits\batch-branch-operations.ps1 create git-commits\git-commits.txt 001-010
 
 # 創建所有分支
 .\git-commits\batch-branch-operations.ps1 create git-commits\git-commits.txt
@@ -130,7 +130,7 @@ python batch-branch-operations.py create git-commits.txt 5
 
 # 或者進入 git-commits 目錄執行
 cd git-commits
-.\batch-branch-operations.ps1 create git-commits.txt 5
+.\batch-branch-operations.ps1 create git-commits.txt 001-010
 ```
 
 ### 分支命名規則
@@ -145,7 +145,8 @@ cd git-commits
 ### 注意事項
 
 1. **創建分支時**：
-   - 會自動從每個 commit 創建分支
+   - 可以指定序號範圍（例如：`001-010`），或省略範圍參數創建所有分支
+   - 會自動從指定範圍的每個 commit 創建分支
    - 創建後會自動切換回原分支（develop 或 main）
    - 如果分支已存在，會跳過並顯示警告
 
@@ -164,8 +165,8 @@ cd git-commits
 # 1. 先生成 commit 清單（在專案根目錄執行）
 python git-commits/generate-git-commits.py develop
 
-# 2. 測試創建前 3 個分支
-python git-commits/batch-branch-operations.py create git-commits/git-commits.txt 3
+# 2. 測試創建 001 到 003 的分支
+python git-commits/batch-branch-operations.py create git-commits/git-commits.txt 001-003
 
 # 3. 確認無誤後，創建所有分支
 python git-commits/batch-branch-operations.py create git-commits/git-commits.txt

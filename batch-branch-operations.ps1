@@ -3,7 +3,7 @@
 #
 # 使用方法:
 #     創建分支:
-#         .\batch-branch-operations.ps1 create [git-commits.txt] [數量]
+#         .\batch-branch-operations.ps1 create [git-commits.txt] [起始序號-結束序號]
 #     
 #     刪除分支:
 #         .\batch-branch-operations.ps1 delete [git-commits.txt] [起始序號-結束序號]
@@ -13,12 +13,11 @@
 #     create: 批次創建分支
 #     delete: 批次刪除分支
 #     git-commits.txt: commit 清單檔案（預設: git-commits.txt）
-#     數量: 要創建的分支數量（預設: 全部）
-#     起始序號-結束序號: 要刪除的分支範圍，例如 001-010
+#     起始序號-結束序號: 要創建或刪除的分支範圍，例如 001-005（不指定則處理全部）
 #
 # 範例:
-#     # 創建前 5 個分支（用於測試）
-#     .\batch-branch-operations.ps1 create git-commits.txt 5
+#     # 創建 001 到 005 的分支（用於測試）
+#     .\batch-branch-operations.ps1 create git-commits.txt 001-005
 #     
 #     # 創建所有分支
 #     .\batch-branch-operations.ps1 create git-commits.txt
@@ -100,7 +99,7 @@ function Parse-CommitsFile {
 function Create-Branches {
     param(
         [array]$Commits,
-        [int]$Count = 0
+        [string]$RangeArg = $null
     )
     
     Test-GitRepo
@@ -110,9 +109,35 @@ function Create-Branches {
         Write-Host "警告: 無法確定當前分支，將繼續執行" -ForegroundColor Yellow
     }
     
-    # 限制數量
-    if ($Count -gt 0) {
-        $Commits = $Commits[0..($Count - 1)]
+    # 解析範圍或使用全部
+    if ($RangeArg) {
+        # 解析範圍格式: 001-005
+        if ($RangeArg -match '^(\d+)-(\d+)$') {
+            $startSeq = [int]$matches[1]
+            $endSeq = [int]$matches[2]
+            
+            if ($startSeq -gt $endSeq) {
+                Write-Host "錯誤: 起始序號不能大於結束序號" -ForegroundColor Red
+                exit 1
+            }
+            
+            # 篩選要創建的分支
+            $commitsToCreate = $Commits | Where-Object {
+                $seqNum = [int]$_.Seq
+                $seqNum -ge $startSeq -and $seqNum -le $endSeq
+            }
+            
+            if ($commitsToCreate.Count -eq 0) {
+                Write-Host "錯誤: 找不到序號範圍 $($startSeq.ToString('000'))-$($endSeq.ToString('000')) 的 commit" -ForegroundColor Red
+                exit 1
+            }
+            
+            $Commits = $commitsToCreate
+            Write-Host "範圍: $($startSeq.ToString('000')) 到 $($endSeq.ToString('000'))" -ForegroundColor Cyan
+        } else {
+            Write-Host "錯誤: 範圍格式錯誤，應為: 起始序號-結束序號 (例如: 001-005)" -ForegroundColor Red
+            exit 1
+        }
     }
     
     Write-Host "準備創建 $($Commits.Count) 個分支" -ForegroundColor Cyan
@@ -290,16 +315,15 @@ if ($commits.Count -eq 0) {
 Write-Host "已讀取 $($commits.Count) 個 commit" -ForegroundColor Green
 
 if ($Operation -eq 'create') {
-    $count = 0
+    # 如果指定了範圍，驗證格式
     if ($ExtraArg) {
-        if ([int]::TryParse($ExtraArg, [ref]$count)) {
-            # $count 已設定
-        } else {
-            Write-Host "錯誤: 無效的數量參數: $ExtraArg" -ForegroundColor Red
+        if ($ExtraArg -notmatch '^(\d+)-(\d+)$') {
+            Write-Host "錯誤: 範圍格式錯誤，應為: 起始序號-結束序號 (例如: 001-005)" -ForegroundColor Red
+            Write-Host "提示: 如果不指定範圍，將創建所有分支" -ForegroundColor Yellow
             exit 1
         }
     }
-    Create-Branches -Commits $commits -Count $count
+    Create-Branches -Commits $commits -RangeArg $ExtraArg
 } elseif ($Operation -eq 'delete') {
     if (-not $ExtraArg) {
         Write-Host "錯誤: 刪除操作需要指定範圍，例如: 001-010" -ForegroundColor Red
