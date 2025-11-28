@@ -194,17 +194,6 @@ export async function deleteBranches(
     };
   }
 
-  // 刪除操作必須指定序號
-  if (startSeq === undefined) {
-    return {
-      success: false,
-      successCount: 0,
-      failCount: 0,
-      skipped: [],
-      error: '刪除操作需要指定序號，例如: 0001 或 0001 0010',
-    };
-  }
-
   // 解析 commits 檔案
   let commits: CommitInfo[];
   try {
@@ -232,30 +221,40 @@ export async function deleteBranches(
 
   console.log(chalk.green(`已讀取 ${commits.length} 個 commit`));
 
-  // 篩選範圍
-  const branchesToDelete = filterCommitsByRange(commits, startSeq, endSeq);
+  // 篩選範圍（若未指定序號則刪除全部）
+  let branchesToDelete: CommitInfo[];
+  let rangeStr: string;
 
-  if (branchesToDelete.length === 0) {
-    const rangeStr =
+  if (startSeq !== undefined) {
+    branchesToDelete = filterCommitsByRange(commits, startSeq, endSeq);
+
+    if (branchesToDelete.length === 0) {
+      rangeStr =
+        endSeq !== undefined && endSeq !== startSeq
+          ? `${String(startSeq).padStart(4, '0')} 到 ${String(endSeq).padStart(4, '0')}`
+          : String(startSeq).padStart(4, '0');
+      return {
+        success: false,
+        successCount: 0,
+        failCount: 0,
+        skipped: [],
+        error: `找不到序號範圍 ${rangeStr} 的分支`,
+      };
+    }
+
+    rangeStr =
       endSeq !== undefined && endSeq !== startSeq
         ? `${String(startSeq).padStart(4, '0')} 到 ${String(endSeq).padStart(4, '0')}`
         : String(startSeq).padStart(4, '0');
-    return {
-      success: false,
-      successCount: 0,
-      failCount: 0,
-      skipped: [],
-      error: `找不到序號範圍 ${rangeStr} 的分支`,
-    };
+    console.log(chalk.cyan(`範圍: ${rangeStr}`));
+  } else {
+    // 未指定序號，刪除全部
+    branchesToDelete = commits;
+    rangeStr = '全部';
+    console.log(chalk.yellow('未指定序號，將刪除所有本工具產生的分支'));
   }
 
-  const rangeStr =
-    endSeq !== undefined && endSeq !== startSeq
-      ? `${String(startSeq).padStart(4, '0')} 到 ${String(endSeq).padStart(4, '0')}`
-      : String(startSeq).padStart(4, '0');
-
   console.log(chalk.cyan(`準備刪除 ${branchesToDelete.length} 個分支`));
-  console.log(chalk.cyan(`範圍: ${rangeStr}`));
   printSeparator();
 
   // 顯示將要刪除的分支

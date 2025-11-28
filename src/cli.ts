@@ -86,34 +86,36 @@ program
 program
   .command('delete')
   .alias('del')
-  .description('根據 commit 清單批次刪除分支')
+  .description('根據 commit 清單批次刪除分支（未指定序號時刪除全部）')
   .argument('[file]', 'commit 清單檔案', 'git-commits.txt')
-  .argument('<start>', '起始序號（例如: 0001 或 1）')
+  .argument('[start]', '起始序號（例如: 0001 或 1，未指定則刪除全部）')
   .argument('[end]', '結束序號（可選）')
   .option('-y, --yes', '跳過確認提示', false)
   .action(
     async (
       file: string,
-      start: string,
+      start: string | undefined,
       end: string | undefined,
       options: { yes: boolean }
     ) => {
       // 解析序號
-      let startSeq: number;
+      let startSeq: number | undefined;
       let endSeq: number | undefined;
 
       // 檢查 file 參數是否實際上是序號
-      if (/^\d+$/.test(file)) {
+      if (file && /^\d+$/.test(file)) {
         startSeq = parseInt(file, 10);
         if (start && /^\d+$/.test(start)) {
           endSeq = parseInt(start, 10);
         }
         file = 'git-commits.txt';
       } else {
-        startSeq = parseInt(start, 10);
-        if (isNaN(startSeq)) {
-          console.error(chalk.red(`錯誤: 無效的起始序號: ${start}`));
-          process.exit(1);
+        if (start) {
+          startSeq = parseInt(start, 10);
+          if (isNaN(startSeq)) {
+            console.error(chalk.red(`錯誤: 無效的起始序號: ${start}`));
+            process.exit(1);
+          }
         }
         if (end) {
           endSeq = parseInt(end, 10);
