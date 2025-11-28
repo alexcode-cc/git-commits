@@ -13,6 +13,23 @@ import {
 import { formatCommits, writeCommitsFile } from './utils/file.js';
 import { printSeparator } from './utils/prompt.js';
 
+/** 預設分支優先順序 */
+const DEFAULT_BRANCHES = ['develop', 'main', 'master'];
+
+/**
+ * 自動偵測可用的預設分支
+ * @returns 找到的分支名稱，若都找不到則回傳 null
+ */
+async function detectDefaultBranch(): Promise<string | null> {
+  for (const branch of DEFAULT_BRANCHES) {
+    const branchInfo = await checkBranchExists(branch);
+    if (branchInfo.exists) {
+      return branchInfo.fullName;
+    }
+  }
+  return null;
+}
+
 /**
  * 生成 Git commits 清單
  * @param options 選項
@@ -22,7 +39,7 @@ export async function generateCommits(
   options: GenerateCommitsOptions = {}
 ): Promise<CommitInfo[]> {
   const {
-    branch = 'develop',
+    branch,
     outputFile = 'git-commits.txt',
     includeMerges = false,
   } = options;
@@ -32,16 +49,27 @@ export async function generateCommits(
     throw new Error('當前目錄不是 git 儲存庫或找不到 git 命令');
   }
 
-  // 檢查分支是否存在
-  const branchInfo = await checkBranchExists(branch);
-  if (!branchInfo.exists) {
-    throw new Error(`找不到分支: ${branch}`);
-  }
+  let targetBranch: string;
 
-  const targetBranch = branchInfo.fullName;
+  // 如果沒有指定分支，自動偵測預設分支
+  if (!branch) {
+    const detectedBranch = await detectDefaultBranch();
+    if (!detectedBranch) {
+      throw new Error(`找不到預設分支（已嘗試: ${DEFAULT_BRANCHES.join(', ')}）`);
+    }
+    targetBranch = detectedBranch;
+    console.log(chalk.yellow(`提示: 自動偵測到分支 ${targetBranch}`));
+  } else {
+    // 檢查指定的分支是否存在
+    const branchInfo = await checkBranchExists(branch);
+    if (!branchInfo.exists) {
+      throw new Error(`找不到分支: ${branch}`);
+    }
+    targetBranch = branchInfo.fullName;
 
-  if (branchInfo.isRemote) {
-    console.log(chalk.yellow(`提示: ${branch} 是遠端分支，將使用 ${targetBranch}`));
+    if (branchInfo.isRemote) {
+      console.log(chalk.yellow(`提示: ${branch} 是遠端分支，將使用 ${targetBranch}`));
+    }
   }
 
   console.log(chalk.cyan(`正在處理分支: ${targetBranch}`));

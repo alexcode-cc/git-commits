@@ -18,11 +18,11 @@ program
 program
   .command('generate')
   .alias('gen')
-  .description('生成指定分支的 commit 清單')
-  .argument('[branch]', '分支名稱', 'develop')
+  .description('生成指定分支的 commit 清單（未指定時自動偵測 develop/main/master）')
+  .argument('[branch]', '分支名稱（預設自動偵測）')
   .option('-o, --output <file>', '輸出檔案名稱', 'git-commits.txt')
   .option('-m, --include-merges', '包含 merge commits', false)
-  .action(async (branch: string, options: { output: string; includeMerges: boolean }) => {
+  .action(async (branch: string | undefined, options: { output: string; includeMerges: boolean }) => {
     await generateCommitsCLI({
       branch,
       outputFile: options.output,
