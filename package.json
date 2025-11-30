@@ -48,12 +48,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/spec-kit/git-commits.git"
   },
   "bugs": {
-    "url": ""
+    "url": "https://github.com/spec-kit/git-commits/issues"
   },
-  "homepage": "",
+  "homepage": "https://github.com/spec-kit/git-commits#readme",
   "engines": {
     "node": ">=18.0.0"
   },
