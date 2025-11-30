@@ -39,7 +39,8 @@ git-commits generate
 git-commits generate main
 
 # 指定輸出檔案（會自動轉換為 .log 附檔名）
-git-commits generate develop -o my-commits.txt  # 實際輸出: my-commits.log
+# 如果輸入 my-commits.txt，實際輸出將被強制更名為 my-commits.log
+git-commits generate develop -o my-commits.log
 
 # 包含 merge commits
 git-commits generate develop -m
@@ -306,3 +307,8 @@ MIT License
 - [GitHub Repository](https://github.com/spec-kit/git-commits)
 - [npm Package](https://www.npmjs.com/package/@alexcode-cc/git-commits)
 - [Issue Tracker](https://github.com/spec-kit/git-commits/issues)
+
+## 舊版指令稿
+
+`scripts/` 目錄下存放了舊版的 Python 與 PowerShell 指令稿，這些是本工具的前身。目前的版本已全面改用 TypeScript 重寫，提供了更完整的功能與更好的維護性。
+

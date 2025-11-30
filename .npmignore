@@ -12,6 +12,7 @@ vite.config.ts
 *.ps1
 
 # Documentation (except README)
+scripts/
 README-git-commits.md
 
 # IDE
