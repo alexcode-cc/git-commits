@@ -277,6 +277,12 @@ npm run install:global
 
 # 測試全域指令
 git-commits --help
+
+# 更新開發版本（修改程式碼後重新安裝）
+npm run install:global
+
+# 移除開發版本
+npm uninstall -g @spec-kit/git-commits
 ```
 
 ### 直接執行 CLI
