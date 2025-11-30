@@ -1,8 +1,8 @@
-# @spec-kit/git-commits
+# git-commits
 
 Git commits 管理工具集 - 生成 commit 清單與批次分支操作
 
-[![npm version](https://badge.fury.io/js/%40spec-kit%2Fgit-commits.svg)](https://www.npmjs.com/package/@spec-kit/git-commits)
+[![npm version](https://badge.fury.io/js/%40spec-kit%2Fgit-commits.svg)](https://www.npmjs.com/package/git-commits)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 功能特色
@@ -18,13 +18,13 @@ Git commits 管理工具集 - 生成 commit 清單與批次分支操作
 
 ```bash
 # 使用 npm
-npm install -g @spec-kit/git-commits
+npm install -g git-commits
 
 # 使用 pnpm
-pnpm add -g @spec-kit/git-commits
+pnpm add -g git-commits
 
 # 使用 yarn
-yarn global add @spec-kit/git-commits
+yarn global add git-commits
 ```
 
 ## CLI 使用方法
@@ -86,7 +86,7 @@ import {
   generateCommits,
   createBranches,
   deleteBranches,
-} from '@spec-kit/git-commits';
+} from 'git-commits';
 
 // 生成 commit 清單
 const commits = await generateCommits({
@@ -121,7 +121,7 @@ import {
   getCurrentBranch,
   createBranch,
   deleteBranch,
-} from '@spec-kit/git-commits';
+} from 'git-commits';
 
 // 檢查是否在 Git 儲存庫中
 if (await isGitRepository()) {
@@ -282,7 +282,7 @@ git-commits --help
 npm run install:global
 
 # 移除開發版本
-npm uninstall -g @spec-kit/git-commits
+npm uninstall -g git-commits
 ```
 
 ### 直接執行 CLI
@@ -304,5 +304,5 @@ MIT License
 ## 相關連結
 
 - [GitHub Repository](https://github.com/spec-kit/git-commits)
-- [npm Package](https://www.npmjs.com/package/@spec-kit/git-commits)
+- [npm Package](https://www.npmjs.com/package/git-commits)
 - [Issue Tracker](https://github.com/spec-kit/git-commits/issues)

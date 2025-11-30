@@ -1,5 +1,5 @@
 {
-  "name": "@spec-kit/git-commits",
+  "name": "git-commits",
   "version": "1.0.0",
   "description": "Git commits 管理工具集 - 生成 commit 清單與批次分支操作",
   "type": "module",

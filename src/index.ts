@@ -2,7 +2,7 @@
  * Git Commits 工具集
  * 
  * @packageDocumentation
- * @module @spec-kit/git-commits
+ * @module git-commits
  */
 
 // 類型匯出
