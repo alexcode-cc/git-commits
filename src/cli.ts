@@ -7,6 +7,8 @@ import chalk from 'chalk';
 import { generateCommitsCLI } from './generate-commits.js';
 import { createBranchesCLI, deleteBranchesCLI } from './batch-branch-operations.js';
 
+import { listBranchesCLI, listAllCommitsCLI } from './list-commits.js';
+
 const program = new Command();
 
 program
@@ -135,6 +137,23 @@ program
     }
   );
 
+// list 命令 - 列出已 checkout 的分支
+program
+  .command('list')
+  .description('列出目前已經 checkout 的分支（只包含此工具 checkout 出來的分支）')
+  .action(async () => {
+    await listBranchesCLI();
+  });
+
+// list-all 命令 - 列出所有 commit 內容
+program
+  .command('list-all')
+  .description('列出 git-commits 的所有分支內容')
+  .argument('[file]', 'commit 清單檔案', 'git-commits.log')
+  .action(async (file: string) => {
+    await listAllCommitsCLI(file);
+  });
+
 // 顯示使用範例
 program.on('--help', () => {
   console.log('');
@@ -145,6 +164,8 @@ program.on('--help', () => {
   console.log('  $ git-commits create 0080');
   console.log('  $ git-commits delete git-commits.log 0001 0010');
   console.log('  $ git-commits delete 0080');
+  console.log('  $ git-commits list');
+  console.log('  $ git-commits list-all');
 });
 
 program.parse();

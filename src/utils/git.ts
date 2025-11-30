@@ -170,3 +170,20 @@ export async function deleteBranch(
   return { success: false, error: result.stderr };
 }
 
+
+/**
+ * 獲取所有本地分支名稱
+ * @returns 本地分支名稱列表
+ */
+export async function getLocalBranches(): Promise<string[]> {
+  const result = await execGit(['branch', '--format=%(refname:short)']);
+  
+  if (result.exitCode !== 0) {
+    throw new Error(`無法獲取本地分支列表: ${result.stderr}`);
+  }
+
+  return result.stdout
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
