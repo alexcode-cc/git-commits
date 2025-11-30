@@ -1,5 +1,5 @@
 {
-  "name": "git-commits",
+  "name": "@alexcode-cc/git-commits",
   "version": "1.0.0",
   "description": "Git commits 管理工具集 - 生成 commit 清單與批次分支操作",
   "type": "module",
@@ -13,9 +13,9 @@
     }
   },
   "bin": {
-    "git-commits": "./dist/cli.js",
-    "gc-generate": "./dist/cli.js",
-    "gc-branch": "./dist/cli.js"
+    "git-commits": "dist/cli.js",
+    "gc-generate": "dist/cli.js",
+    "gc-branch": "dist/cli.js"
   },
   "files": [
     "dist",

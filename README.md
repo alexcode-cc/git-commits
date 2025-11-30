@@ -1,8 +1,8 @@
-# git-commits
+# @alexcode-cc/git-commits
 
 Git commits 管理工具集 - 生成 commit 清單與批次分支操作
 
-[![npm version](https://badge.fury.io/js/%40spec-kit%2Fgit-commits.svg)](https://www.npmjs.com/package/git-commits)
+[![npm version](https://badge.fury.io/js/%40alexcode-cc%2Fgit-commits.svg)](https://www.npmjs.com/package/@alexcode-cc/git-commits)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 功能特色
@@ -18,13 +18,13 @@ Git commits 管理工具集 - 生成 commit 清單與批次分支操作
 
 ```bash
 # 使用 npm
-npm install -g git-commits
+npm install -g @alexcode-cc/git-commits
 
 # 使用 pnpm
-pnpm add -g git-commits
+pnpm add -g @alexcode-cc/git-commits
 
 # 使用 yarn
-yarn global add git-commits
+yarn global add @alexcode-cc/git-commits
 ```
 
 ## CLI 使用方法
@@ -282,7 +282,7 @@ git-commits --help
 npm run install:global
 
 # 移除開發版本
-npm uninstall -g git-commits
+npm uninstall -g @alexcode-cc/git-commits
 ```
 
 ### 直接執行 CLI
@@ -304,5 +304,5 @@ MIT License
 ## 相關連結
 
 - [GitHub Repository](https://github.com/spec-kit/git-commits)
-- [npm Package](https://www.npmjs.com/package/git-commits)
+- [npm Package](https://www.npmjs.com/package/@alexcode-cc/git-commits)
 - [Issue Tracker](https://github.com/spec-kit/git-commits/issues)
