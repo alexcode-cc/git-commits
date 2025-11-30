@@ -45,16 +45,16 @@
     "cli",
     "devtools"
   ],
-  "author": "",
+  "author": "alexcode-cc",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/spec-kit/git-commits.git"
+    "url": "git+https://github.com/alexcode-cc/git-commits.git"
   },
   "bugs": {
-    "url": "https://github.com/spec-kit/git-commits/issues"
+    "url": "https://github.com/alexcode-cc/git-commits/issues"
   },
-  "homepage": "https://github.com/spec-kit/git-commits#readme",
+  "homepage": "https://github.com/alexcode-cc/git-commits#readme",
   "engines": {
     "node": ">=18.0.0"
   },
