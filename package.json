@@ -34,7 +34,8 @@
     "cli:create": "node dist/cli.js create",
     "cli:delete": "node dist/cli.js delete",
     "cli:list": "node dist/cli.js list",
-    "cli:list-all": "node dist/cli.js list-all"
+    "cli:list-all": "node dist/cli.js list-all",
+    "install:global": "npm install -g ."
   },
   "keywords": [
     "git",

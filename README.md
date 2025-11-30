@@ -267,6 +267,18 @@ npm run cli:delete -- 0001 0010 -y             # 跳過確認提示
 
 > **注意**: 使用 `npm run` 傳遞參數時，需要在參數前加上 `--` 分隔符號。
 
+### 本地安裝測試
+
+將目前開發版本安裝到本地全域環境進行測試：
+
+```bash
+# 安裝到全域環境
+npm run install:global
+
+# 測試全域指令
+git-commits --help
+```
+
 ### 直接執行 CLI
 
 也可以直接使用 Node.js 執行：
