@@ -1,6 +1,6 @@
 # 發布指南
 
-本文件說明如何將 `git-commits` 工具集發布到 GitHub 與 npm。
+本文件說明如何將 `@alexcode-cc/git-commits` 工具集發布到 GitHub 與 npm。
 
 ## 前置準備
 
@@ -57,10 +57,10 @@ npm version major
 執行以下指令將套件發布到 npm：
 
 ```bash
-npm publish
+npm publish --access public
 ```
 
-> **注意**：如果是第一次發布 scoped package (例如 `@alexcode-cc/git-commits`)，需要加上 `--access public`。但本專案目前名稱為 `git-commits`，如果該名稱已被佔用，您可能需要改名或使用 scoped name。
+> **注意**：由於本專案為 Scoped Package (`@alexcode-cc/git-commits`)，發布時建議加上 `--access public` 參數，確保套件為公開存取。
 
 ## 5. 推送到 GitHub
 
@@ -71,23 +71,6 @@ git push origin main --tags
 ```
 
 ## 常見問題
-
-### 套件名稱衝突
-
-如果 `git-commits` 名稱在 npm 上已被使用，您需要修改 `package.json` 中的 `name` 欄位。建議改為 Scoped Package，例如 `@alexcode-cc/git-commits`。
-
-修改 `package.json`:
-```json
-{
-  "name": "@alexcode-cc/git-commits",
-  ...
-}
-```
-
-然後發布時使用：
-```bash
-npm publish --access public
-```
 
 ### 權限錯誤
 

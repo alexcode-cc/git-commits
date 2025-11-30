@@ -1,5 +1,10 @@
 # 專案規則
 
+## 一般規則
+
+- 總是使用繁體中文回應。
+- 提交 Git 時所有的提交訊息請使用繁體中文。
+
 ## Git Commit 規範
 
 本專案遵循 [AngularJS Git Commit Message Conventions](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#-git-commit-guidelines)。

@@ -2,7 +2,7 @@
  * Git Commits 工具集
  * 
  * @packageDocumentation
- * @module git-commits
+ * @module @alexcode-cc/git-commits
  */
 
 // 類型匯出
