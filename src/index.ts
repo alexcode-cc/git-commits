@@ -45,3 +45,6 @@ export {
 
 export { confirm, printSeparator } from './utils/prompt.js';
 
+// i18n 函數匯出
+export { t, setLocale, getLocale, detectLocale, type Locale } from './i18n/index.js';
+

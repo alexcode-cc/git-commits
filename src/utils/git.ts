@@ -5,6 +5,7 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import type { GitExecResult } from '../types.js';
+import { t } from '../i18n/index.js';
 
 const execAsync = promisify(exec);
 
@@ -105,7 +106,7 @@ export async function getCommits(
   const result = await execGit(args);
 
   if (result.exitCode !== 0) {
-    throw new Error(`無法獲取 ${branch} 分支的 commit 列表: ${result.stderr}`);
+    throw new Error(t('git.cannotGetCommits', { branch, error: result.stderr }));
   }
 
   return result.stdout
@@ -177,9 +178,9 @@ export async function deleteBranch(
  */
 export async function getLocalBranches(): Promise<string[]> {
   const result = await execGit(['branch', '--format=%(refname:short)']);
-  
+
   if (result.exitCode !== 0) {
-    throw new Error(`無法獲取本地分支列表: ${result.stderr}`);
+    throw new Error(t('git.cannotGetBranches', { error: result.stderr }));
   }
 
   return result.stdout

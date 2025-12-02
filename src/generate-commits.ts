@@ -13,6 +13,7 @@ import {
 } from './utils/git.js';
 import { formatCommits, writeCommitsFile } from './utils/file.js';
 import { printSeparator } from './utils/prompt.js';
+import { t } from './i18n/index.js';
 
 /**
  * 確保檔案名稱使用 .log 附檔名
@@ -65,7 +66,7 @@ export async function generateCommits(
 
   // 檢查是否在 Git 儲存庫中
   if (!(await isGitRepository())) {
-    throw new Error('當前目錄不是 git 儲存庫或找不到 git 命令');
+    throw new Error(t('git.notRepository'));
   }
 
   let targetBranch: string;
@@ -74,32 +75,32 @@ export async function generateCommits(
   if (!branch) {
     const detectedBranch = await detectDefaultBranch();
     if (!detectedBranch) {
-      throw new Error(`找不到預設分支（已嘗試: ${DEFAULT_BRANCHES.join(', ')}）`);
+      throw new Error(t('git.noDefaultBranch', { branches: DEFAULT_BRANCHES.join(', ') }));
     }
     targetBranch = detectedBranch;
-    console.log(chalk.yellow(`提示: 自動偵測到分支 ${targetBranch}`));
+    console.log(chalk.yellow(`${t('common.hint')}: ${t('git.branchDetected', { branch: targetBranch })}`));
   } else {
     // 檢查指定的分支是否存在
     const branchInfo = await checkBranchExists(branch);
     if (!branchInfo.exists) {
-      throw new Error(`找不到分支: ${branch}`);
+      throw new Error(t('git.branchNotFound', { branch }));
     }
     targetBranch = branchInfo.fullName;
 
     if (branchInfo.isRemote) {
-      console.log(chalk.yellow(`提示: ${branch} 是遠端分支，將使用 ${targetBranch}`));
+      console.log(chalk.yellow(`${t('common.hint')}: ${t('git.branchIsRemote', { branch, fullName: targetBranch })}`));
     }
   }
 
-  console.log(chalk.cyan(`正在處理分支: ${targetBranch}`));
-  console.log(chalk.cyan(`輸出檔案: ${outputFile}`));
+  console.log(chalk.cyan(t('git.processing', { branch: targetBranch })));
+  console.log(chalk.cyan(t('file.outputFile', { file: outputFile })));
   printSeparator();
 
   // 獲取 commit 列表
   const rawCommits = await getCommits(targetBranch, includeMerges);
 
   if (rawCommits.length === 0) {
-    console.log(chalk.yellow(`警告: ${targetBranch} 分支沒有任何 commit`));
+    console.log(chalk.yellow(`${t('common.warning')}: ${t('generate.noCommitsInBranch', { branch: targetBranch })}`));
     return [];
   }
 
@@ -109,8 +110,8 @@ export async function generateCommits(
   // 寫入檔案
   await writeCommitsFile(outputFile, commits);
 
-  console.log(chalk.green(`✓ 成功生成 ${outputFile}`));
-  console.log(chalk.green(`  共 ${commits.length} 個 commit`));
+  console.log(chalk.green(t('generate.generatedSuccess', { file: outputFile })));
+  console.log(chalk.green(t('generate.commitsCount', { count: commits.length })));
 
   return commits;
 }
@@ -126,7 +127,7 @@ export async function generateCommitsCLI(
     await generateCommits(options);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(chalk.red(`錯誤: ${message}`));
+    console.error(chalk.red(`${t('common.error')}: ${message}`));
     process.exit(1);
   }
 }
