@@ -298,6 +298,10 @@ node dist/cli.js create 0001 0010
 node dist/cli.js delete 0080 -y
 ```
 
+## 開發協作
+
+本專案由 [Claude Code](https://claude.com/claude-code) 協作完成開發。Claude Code 是 Anthropic 推出的 AI 程式設計助手，協助進行程式碼撰寫、架構設計與文件編寫。
+
 ## 授權
 
 MIT License
