@@ -1,10 +1,10 @@
-# 發布指南
+# NPM套件發布範例
 
-本文件說明如何將 `@alexcode-cc/git-commits` 工具集發布到 GitHub 與 npm。
+本文件以`@alexcode-cc/git-commits`工具集為範例，說明如何將套件發布到 GitHub 與 npm。
 
 ## 前置準備
 
-1.  **GitHub 帳號**：確保您擁有 `alexcode-cc` 帳號的權限。
+1.  **GitHub 帳號**：確保您擁有 `github` 用戶帳號的權限。
 2.  **npm 帳號**：確保您已註冊 npm 帳號並登入。
 3.  **Git 設定**：確保本地 Git 已設定正確的遠端儲存庫。
 
@@ -17,7 +17,7 @@
 git remote remove origin
 
 # 新增 GitHub origin
-git remote add origin git@github.com:alexcode-cc/git-commits.git
+git remote add origin git@github.com:用戶名稱/套件名稱.git
 
 # 確認設定
 git remote -v
@@ -60,7 +60,7 @@ npm version major
 npm publish --access public
 ```
 
-> **注意**：由於本專案為 Scoped Package (`@alexcode-cc/git-commits`)，發布時建議加上 `--access public` 參數，確保套件為公開存取。
+> **注意**：由於本專案為 Scoped Package (`@用戶名稱/套件名稱`)，發布時建議加上 `--access public` 參數，確保套件為公開存取。
 
 ## 5. 推送到 GitHub
 
