@@ -6,24 +6,38 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import { generateCommitsCLI } from './generate-commits.js';
 import { createBranchesCLI, deleteBranchesCLI } from './batch-branch-operations.js';
-
 import { listBranchesCLI, listAllCommitsCLI } from './list-commits.js';
+import { t, setLocale, detectLocale } from './i18n/index.js';
+
+// Detect locale from CLI flags
+const args = process.argv;
+let detectedLocale: string | undefined;
+if (args.includes('--CHT')) {
+  detectedLocale = 'CHT';
+} else if (args.includes('--CHS')) {
+  detectedLocale = 'CHS';
+}
+
+// Set locale
+setLocale(detectLocale(detectedLocale));
 
 const program = new Command();
 
 program
   .name('git-commits')
-  .description('Git commits 管理工具集 - 生成 commit 清單與批次分支操作')
-  .version('1.0.0');
+  .description(t('cli.description'))
+  .version('1.1.0')
+  .option('--CHT', 'Use Traditional Chinese')
+  .option('--CHS', 'Use Simplified Chinese');
 
 // generate 命令 - 生成 commit 清單
 program
   .command('generate')
   .alias('gen')
-  .description('生成指定分支的 commit 清單（未指定時自動偵測 develop/main/master）')
-  .argument('[branch]', '分支名稱（預設自動偵測）')
-  .option('-o, --output <file>', '輸出檔案名稱', 'git-commits.log')
-  .option('-m, --include-merges', '包含 merge commits', false)
+  .description(t('cli.generateDesc'))
+  .argument('[branch]', t('cli.branchArg'))
+  .option('-o, --output <file>', t('cli.outputOpt'), 'git-commits.log')
+  .option('-m, --include-merges', t('cli.mergesOpt'), false)
   .action(async (branch: string | undefined, options: { output: string; includeMerges: boolean }) => {
     await generateCommitsCLI({
       branch,
@@ -35,11 +49,11 @@ program
 // create 命令 - 批次創建分支
 program
   .command('create')
-  .description('根據 commit 清單批次創建分支')
-  .argument('[file]', 'commit 清單檔案', 'git-commits.log')
-  .argument('[start]', '起始序號（例如: 0001 或 1）')
-  .argument('[end]', '結束序號（可選）')
-  .option('-y, --yes', '跳過確認提示', false)
+  .description(t('cli.createDesc'))
+  .argument('[file]', t('cli.fileArg'), 'git-commits.log')
+  .argument('[start]', t('cli.startArg'))
+  .argument('[end]', t('cli.endArg'))
+  .option('-y, --yes', t('cli.yesOpt'), false)
   .action(
     async (
       file: string,
@@ -62,14 +76,14 @@ program
         if (start) {
           startSeq = parseInt(start, 10);
           if (isNaN(startSeq)) {
-            console.error(chalk.red(`錯誤: 無效的起始序號: ${start}`));
+            console.error(chalk.red(`${t('common.error')}: ${t('cli.invalidStartSeq', { seq: start })}`));
             process.exit(1);
           }
         }
         if (end) {
           endSeq = parseInt(end, 10);
           if (isNaN(endSeq)) {
-            console.error(chalk.red(`錯誤: 無效的結束序號: ${end}`));
+            console.error(chalk.red(`${t('common.error')}: ${t('cli.invalidEndSeq', { seq: end })}`));
             process.exit(1);
           }
         }
@@ -88,11 +102,11 @@ program
 program
   .command('delete')
   .alias('del')
-  .description('根據 commit 清單批次刪除分支（未指定序號時刪除全部）')
-  .argument('[file]', 'commit 清單檔案', 'git-commits.log')
-  .argument('[start]', '起始序號（例如: 0001 或 1，未指定則刪除全部）')
-  .argument('[end]', '結束序號（可選）')
-  .option('-y, --yes', '跳過確認提示', false)
+  .description(t('cli.deleteDesc'))
+  .argument('[file]', t('cli.fileArg'), 'git-commits.log')
+  .argument('[start]', t('cli.startArg'))
+  .argument('[end]', t('cli.endArg'))
+  .option('-y, --yes', t('cli.yesOpt'), false)
   .action(
     async (
       file: string,
@@ -115,14 +129,14 @@ program
         if (start) {
           startSeq = parseInt(start, 10);
           if (isNaN(startSeq)) {
-            console.error(chalk.red(`錯誤: 無效的起始序號: ${start}`));
+            console.error(chalk.red(`${t('common.error')}: ${t('cli.invalidStartSeq', { seq: start })}`));
             process.exit(1);
           }
         }
         if (end) {
           endSeq = parseInt(end, 10);
           if (isNaN(endSeq)) {
-            console.error(chalk.red(`錯誤: 無效的結束序號: ${end}`));
+            console.error(chalk.red(`${t('common.error')}: ${t('cli.invalidEndSeq', { seq: end })}`));
             process.exit(1);
           }
         }
@@ -140,7 +154,7 @@ program
 // list 命令 - 列出已 checkout 的分支
 program
   .command('list')
-  .description('列出目前已經 checkout 的分支（只包含此工具 checkout 出來的分支）')
+  .description(t('cli.listDesc'))
   .action(async () => {
     await listBranchesCLI();
   });
@@ -148,8 +162,8 @@ program
 // list-all 命令 - 列出所有 commit 內容
 program
   .command('list-all')
-  .description('列出 git-commits 的所有分支內容')
-  .argument('[file]', 'commit 清單檔案', 'git-commits.log')
+  .description(t('cli.listAllDesc'))
+  .argument('[file]', t('cli.fileArg'), 'git-commits.log')
   .action(async (file: string) => {
     await listAllCommitsCLI(file);
   });

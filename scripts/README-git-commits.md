@@ -1,182 +1,183 @@
-# Git Commits 整理工具
+# Git Commits Management Tool
 
-這個工具可以將指定 git 分支的所有 commit 整理成格式化列表，方便查看和管理。
+**[繁體中文版 (Traditional Chinese)](./README-git-commits-CHT.md)**
 
-> **注意**: 所有工具檔案位於 `git-commits/` 目錄中。請將此工具檔案目錄複製成目標專案的父目錄下的子目錄，與目標專案目錄同級。在**目標專案根目錄**執行這些指令稿，或使用相對路徑指向 `git-commits/` 目錄中的檔案。
+This tool organizes all commits from a specified git branch into a formatted list for easy viewing and management.
 
-## 功能
+> **Note**: All tool files are located in the `git-commits/` directory. Copy this tool directory as a subdirectory under the parent directory of the target project, at the same level as the target project directory. Execute these scripts in the **target project root directory**, or use relative paths pointing to files in the `git-commits/` directory.
 
-- 自動獲取指定分支的所有 commit（從最早到最晚）
-- 自動編號（4 位數補零格式：0001, 0002, 0003...）
-- 排除 merge commit
-- 支援本地分支和遠端分支
-- 輸出格式：`序號 commit-hash commit-message`
+## Features
 
-## 使用方法
+- Automatically retrieve all commits from a specified branch (from earliest to latest)
+- Automatic numbering (4-digit zero-padded format: 0001, 0002, 0003...)
+- Exclude merge commits
+- Support for local and remote branches
+- Output format: `sequence commit-hash commit-message`
 
-### Python 版本（推薦，跨平台）
+## Usage
+
+### Python Version (Recommended, Cross-platform)
 
 ```bash
-# 在專案根目錄執行，使用預設設定（develop 分支，輸出到當前目錄的 git-commits.txt）
+# Execute in project root directory, use default settings (develop branch, output to git-commits.txt in current directory)
 python ../git-commits/generate-git-commits.py
 
-# 指定分支名稱
+# Specify branch name
 python ../git-commits/generate-git-commits.py main
 
-# 指定分支和輸出檔案名稱
+# Specify branch and output file name
 python ../git-commits/generate-git-commits.py develop git-commits-develop.txt
 ```
 
-### PowerShell 版本（Windows）
+### PowerShell Version (Windows)
 
 ```powershell
-# 在專案根目錄執行，使用預設設定（develop 分支，輸出到 git-commits/git-commits.txt）
+# Execute in project root directory, use default settings (develop branch, output to git-commits/git-commits.txt)
 ..\git-commits\generate-git-commits.ps1
 
-# 指定分支名稱
+# Specify branch name
 ..\git-commits\generate-git-commits.ps1 main
 
-# 指定分支和輸出檔案名稱
+# Specify branch and output file name
 ..\git-commits\generate-git-commits.ps1 develop git-commits/git-commits-develop.txt
 ```
 
-## 輸出格式範例
+## Output Format Example
 
 ```
 0001 5122da3 Initial commit
-0002 ce322f4 chore: 新增專案 .gitignore 設定
-0003 bafbcb0 docs(constitution): 新增專案憲章文件
-0004 9b1e0a2 docs(spec): 新增軟體功能規格文件
+0002 ce322f4 chore: Add project .gitignore configuration
+0003 bafbcb0 docs(constitution): Add project charter document
+0004 9b1e0a2 docs(spec): Add software feature specification document
 ...
 ```
 
-## 需求
+## Requirements
 
-- Git（已安裝並在 PATH 中）
-- Python 3.x（使用 Python 版本時）
-- PowerShell 5.1+（使用 PowerShell 版本時）
+- Git (installed and in PATH)
+- Python 3.x (when using Python version)
+- PowerShell 5.1+ (when using PowerShell version)
 
-## 注意事項
+## Notes
 
-1. 請在 git 儲存庫的根目錄執行此腳本
-2. 如果指定的分支不存在，腳本會自動檢查遠端分支
-3. 輸出檔案會覆蓋同名的現有檔案
-4. 腳本會自動排除 merge commit
+1. Execute this script in the root directory of a git repository
+2. If the specified branch doesn't exist, the script will automatically check remote branches
+3. The output file will overwrite any existing file with the same name
+4. The script automatically excludes merge commits
 
-## 故障排除
+## Troubleshooting
 
-### 找不到分支
+### Branch Not Found
 
-如果遇到「找不到分支」的錯誤，請確認：
-- 分支名稱拼寫正確
-- 分支已存在（使用 `git branch -a` 查看所有分支）
-- 如果是遠端分支，確保已執行 `git fetch`
+If you encounter a "branch not found" error, please verify:
+- Branch name is spelled correctly
+- Branch exists (use `git branch -a` to view all branches)
+- If it's a remote branch, ensure you've executed `git fetch`
 
-### 編碼問題
+### Encoding Issues
 
-如果輸出檔案中的中文顯示為亂碼：
-- Python 版本：腳本已設定 UTF-8 編碼，應該不會有問題
-- PowerShell 版本：確保終端機支援 UTF-8 編碼
+If Chinese characters appear as garbled text in the output file:
+- Python version: Script is configured with UTF-8 encoding, should not have issues
+- PowerShell version: Ensure terminal supports UTF-8 encoding
 
-## 批次分支操作工具
+## Batch Branch Operations Tool
 
-除了生成 commit 清單外，還提供了批次分支操作工具，可以根據 `git-commits.txt` 批次創建或刪除分支。
+In addition to generating commit lists, batch branch operation tools are provided to create or delete branches in batches based on `git-commits.txt`.
 
-### 功能
+### Features
 
-- **批次創建分支**: 根據 commit 清單自動創建分支，分支名稱格式為 `序號-commit-hash`
-- **可指定範圍**: 支援指定序號範圍創建分支（例如：0001 0005），方便測試
-- **單一序號**: 支援只處理單一序號（例如：0080）
-- **批次刪除分支**: 根據序號範圍批次刪除分支
-- **安全確認**: 執行前會要求確認，避免誤操作
+- **Batch create branches**: Automatically create branches based on commit list, branch name format is `sequence-commit-hash`
+- **Range specification**: Support specifying sequence number ranges for branch creation (e.g., 0001 0005), convenient for testing
+- **Single sequence**: Support processing only a single sequence number (e.g., 0080)
+- **Batch delete branches**: Delete branches in batches based on sequence number ranges
+- **Safety confirmation**: Requires confirmation before execution to avoid accidental operations
 
-### 使用方法
+### Usage
 
-#### Python 版本
+#### Python Version
 
 ```bash
-# 在專案根目錄執行，創建 0001 到 0010 的分支（用於測試）
+# Execute in project root directory, create branches 0001 to 0010 (for testing)
 python ../git-commits/batch-branch-operations.py create git-commits.txt 0001 0010
 
-# 只創建 0080 這個分支
+# Create only branch 0080
 python ../git-commits/batch-branch-operations.py create git-commits.txt 0080
 
-# 創建所有分支（使用預設的 git-commits.txt）
+# Create all branches (using default git-commits.txt)
 python ../git-commits/batch-branch-operations.py create
 
-# 刪除 0001 到 0010 的分支
+# Delete branches 0001 to 0010
 python ../git-commits/batch-branch-operations.py delete git-commits.txt 0001 0010
 
-# 只刪除 0080 這個分支
+# Delete only branch 0080
 python ../git-commits/batch-branch-operations.py delete git-commits.txt 0080
 ```
 
-#### PowerShell 版本
+#### PowerShell Version
 
 ```powershell
-# 在專案根目錄執行，創建 0001 到 0010 的分支（用於測試）
+# Execute in project root directory, create branches 0001 to 0010 (for testing)
 ..\git-commits\batch-branch-operations.ps1 create git-commits.txt 0001 0010
 
-# 只創建 0080 這個分支
+# Create only branch 0080
 ..\git-commits\batch-branch-operations.ps1 create git-commits.txt 0080
 
-# 創建所有分支（使用預設的 git-commits.txt）
+# Create all branches (using default git-commits.txt)
 ..\git-commits\batch-branch-operations.ps1 create
 
-# 刪除 0001 到 0010 的分支
+# Delete branches 0001 to 0010
 ..\git-commits\batch-branch-operations.ps1 delete git-commits.txt 0001 0010
 
-# 只刪除 0080 這個分支
+# Delete only branch 0080
 ..\git-commits\batch-branch-operations.ps1 delete git-commits.txt 0080
 ```
 
-### 分支命名規則
+### Branch Naming Convention
 
-創建的分支名稱格式為：`序號-commit-hash`
+Created branch name format: `sequence-commit-hash`
 
-例如：
+Examples:
 - `0001-5122da3`
 - `0002-ce322f4`
 - `0003-bafbcb0`
 
-### 注意事項
+### Notes
 
-1. **創建分支時**：
-   - 可以指定序號範圍（例如：`0001 0010`），或只指定單一序號（例如：`0080`），或省略參數創建所有分支
-   - 會自動從指定範圍的每個 commit 創建分支
-   - 創建後會自動切換回原分支（develop 或 main）
-   - 如果分支已存在，會跳過並顯示警告
+1. **When creating branches**:
+   - Can specify sequence range (e.g., `0001 0010`), or only specify a single sequence (e.g., `0080`), or omit parameters to create all branches
+   - Will automatically create branches from each commit in the specified range
+   - Will automatically switch back to the original branch (develop or main) after creation
+   - If branch already exists, will skip and display a warning
 
-2. **刪除分支時**：
-   - 需要指定序號，格式為：`起始序號 [結束序號]`（例如：`0001 0010` 或 `0080`）
-   - 如果當前在要刪除的分支上，會自動切換到 develop 或 main
-   - 如果分支不存在，會跳過並顯示警告
+2. **When deleting branches**:
+   - Need to specify sequence numbers, format: `start-sequence [end-sequence]` (e.g., `0001 0010` or `0080`)
+   - If currently on a branch to be deleted, will automatically switch to develop or main
+   - If branch doesn't exist, will skip and display a warning
 
-3. **安全機制**：
-   - 所有操作前都會要求確認
-   - 刪除操作會先顯示將要刪除的分支清單
+3. **Safety mechanisms**:
+   - All operations require confirmation before execution
+   - Delete operations will first display the list of branches to be deleted
 
-### 使用範例
+### Usage Example
 
 ```bash
-# 1. 先生成 commit 清單（在專案根目錄執行，會創建 git-commits.txt）
+# 1. First generate commit list (execute in project root directory, will create git-commits.txt)
 python ../git-commits/generate-git-commits.py develop
 
-# 2. 測試創建 0001 到 0003 的分支
+# 2. Test creating branches 0001 to 0003
 python ../git-commits/batch-branch-operations.py create git-commits.txt 0001 0003
 
-# 3. 確認無誤後，創建所有分支
+# 3. After confirming no issues, create all branches
 python ../git-commits/batch-branch-operations.py create
 
-# 4. 完成工作後，刪除測試分支
+# 4. After completing work, delete test branches
 python ../git-commits/batch-branch-operations.py delete git-commits.txt 0001 0003
 
-# 或者只處理單一序號
+# Or process only a single sequence
 python ../git-commits/batch-branch-operations.py create git-commits.txt 0080
 python ../git-commits/batch-branch-operations.py delete git-commits.txt 0080
 ```
 
-## 授權
+## License
 
-此工具可自由使用和修改。
-
+This tool is free to use and modify.

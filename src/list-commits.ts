@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { getLocalBranches } from './utils/git.js';
 import { parseCommitsFile } from './utils/file.js';
+import { t } from './i18n/index.js';
 
 /**
  * 列出此工具創建的分支
@@ -13,13 +14,13 @@ export async function listBranchesCLI(): Promise<void> {
         const toolBranches = branches.filter(branch => /^\d{4}-[a-f0-9]+$/.test(branch));
 
         if (toolBranches.length === 0) {
-            console.log(chalk.yellow('找不到由 git-commits 工具創建的分支。'));
+            console.log(chalk.yellow(t('git.noBranches')));
             return;
         }
 
-        console.log(chalk.cyan.bold('\n已 Checkout 的分支列表:'));
+        console.log(chalk.cyan.bold(t('list.checkedOutBranches')));
         console.log(chalk.gray('----------------------------------------'));
-        console.log(chalk.bold('序號  Hash     分支名稱'));
+        console.log(chalk.bold(t('list.seqHashBranch')));
         console.log(chalk.gray('----------------------------------------'));
 
         for (const branch of toolBranches) {
@@ -30,11 +31,11 @@ export async function listBranchesCLI(): Promise<void> {
             console.log(`${chalk.green(seq)}  ${chalk.yellow(hash)}  ${branch}`);
         }
         console.log(chalk.gray('----------------------------------------'));
-        console.log(chalk.blue(`總計: ${toolBranches.length} 個分支\n`));
+        console.log(chalk.blue(`${t('common.total')}: ${toolBranches.length} ${t('common.branches')}\n`));
 
     } catch (error: unknown) {
         const err = error as Error;
-        console.error(chalk.red(`錯誤: ${err.message}`));
+        console.error(chalk.red(`${t('common.error')}: ${err.message}`));
         process.exit(1);
     }
 }
@@ -64,13 +65,13 @@ export async function listAllCommitsCLI(file: string = 'git-commits.log'): Promi
         }
 
         if (commits.length === 0) {
-            console.log(chalk.yellow(`檔案 ${file} 中沒有 commit 資料。`));
+            console.log(chalk.yellow(t('file.noData', { file })));
             return;
         }
 
-        console.log(chalk.cyan.bold(`\nCommit 清單 (${file}):`));
+        console.log(chalk.cyan.bold(t('list.commitList', { file })));
         console.log(chalk.gray('------------------------------------------------------------'));
-        console.log(chalk.bold('序號  Hash     訊息'));
+        console.log(chalk.bold(t('list.seqHashMessage')));
         console.log(chalk.gray('------------------------------------------------------------'));
 
         for (const commit of commits) {
@@ -79,11 +80,11 @@ export async function listAllCommitsCLI(file: string = 'git-commits.log'): Promi
             );
         }
         console.log(chalk.gray('------------------------------------------------------------'));
-        console.log(chalk.blue(`總計: ${commits.length} 個 commits\n`));
+        console.log(chalk.blue(`${t('common.total')}: ${commits.length} ${t('common.commits')}\n`));
 
     } catch (error: unknown) {
         const err = error as Error;
-        console.error(chalk.red(`錯誤: ${err.message}`));
+        console.error(chalk.red(`${t('common.error')}: ${err.message}`));
         process.exit(1);
     }
 }

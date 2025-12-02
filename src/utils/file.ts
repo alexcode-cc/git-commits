@@ -4,6 +4,7 @@
 
 import { readFile, writeFile } from 'fs/promises';
 import type { CommitInfo } from '../types.js';
+import { t } from '../i18n/index.js';
 
 /**
  * 解析 commits 檔案
@@ -40,7 +41,7 @@ export async function parseCommitsFile(filePath: string): Promise<CommitInfo[]> 
   } catch (error: unknown) {
     const fsError = error as { code?: string };
     if (fsError.code === 'ENOENT') {
-      throw new Error(`找不到檔案: ${filePath}`);
+      throw new Error(t('file.fileNotFound', { file: filePath }));
     }
     throw error;
   }

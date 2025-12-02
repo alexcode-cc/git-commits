@@ -1,7 +1,7 @@
 {
   "name": "@alexcode-cc/git-commits",
-  "version": "1.0.0",
-  "description": "Git commits 管理工具集 - 生成 commit 清單與批次分支操作",
+  "version": "1.1.0",
+  "description": "Git commits management toolkit - Generate commit lists and batch branch operations",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -43,7 +43,12 @@
     "branch",
     "batch-operations",
     "cli",
-    "devtools"
+    "devtools",
+    "i18n",
+    "internationalization",
+    "multilingual",
+    "chinese",
+    "english"
   ],
   "author": "alexcode-cc",
   "license": "MIT",
