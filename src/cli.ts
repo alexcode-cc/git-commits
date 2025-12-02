@@ -26,7 +26,7 @@ const program = new Command();
 program
   .name('git-commits')
   .description(t('cli.description'))
-  .version('1.0.0')
+  .version('1.1.0')
   .option('--CHT', 'Use Traditional Chinese')
   .option('--CHS', 'Use Simplified Chinese');
 
