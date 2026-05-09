@@ -4,10 +4,14 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
+import { createRequire } from 'module';
 import { generateCommitsCLI } from './generate-commits.js';
 import { createBranchesCLI, deleteBranchesCLI } from './batch-branch-operations.js';
 import { listBranchesCLI, listAllCommitsCLI } from './list-commits.js';
 import { t, setLocale, detectLocale } from './i18n/index.js';
+
+const require = createRequire(import.meta.url);
+const { version } = require('../package.json') as { version: string };
 
 // Detect locale from CLI flags
 const args = process.argv;
@@ -26,7 +30,7 @@ const program = new Command();
 program
   .name('git-commits')
   .description(t('cli.description'))
-  .version('1.1.0')
+  .version(version)
   .option('--CHT', 'Use Traditional Chinese')
   .option('--CHS', 'Use Simplified Chinese');
 

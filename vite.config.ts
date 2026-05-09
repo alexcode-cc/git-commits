@@ -23,6 +23,7 @@ export default defineConfig({
         'child_process',
         'fs',
         'fs/promises',
+        'module',
         'path',
         'readline',
         'util',

@@ -6,6 +6,8 @@ import { readFile, writeFile } from 'fs/promises';
 import type { CommitInfo } from '../types.js';
 import { t } from '../i18n/index.js';
 
+const COMMIT_LINE_PATTERN = /^(\d{4})\s+([0-9a-fA-F]{7,40})(?:\s+(.*))?$/;
+
 /**
  * 解析 commits 檔案
  * @param filePath 檔案路徑
@@ -17,24 +19,27 @@ export async function parseCommitsFile(filePath: string): Promise<CommitInfo[]> 
     const lines = content.split('\n');
     const commits: CommitInfo[] = [];
 
-    for (const line of lines) {
+    for (const [index, line] of lines.entries()) {
       const trimmedLine = line.trim();
       if (!trimmedLine) continue;
 
       // 格式: 0001 5122da3 Initial commit from Specify template
-      const parts = trimmedLine.split(/\s+/);
-      if (parts.length >= 2) {
-        const seq = parts[0];
-        const hash = parts[1];
-        const message = parts.slice(2).join(' ');
-
-        commits.push({
-          seq,
-          hash,
-          message,
-          branchName: `${seq}-${hash}`,
-        });
+      const match = COMMIT_LINE_PATTERN.exec(trimmedLine);
+      if (!match) {
+        throw new Error(
+          `無效的 commit 清單格式: ${filePath}:${index + 1}，預期格式為 "0001 5122da3 commit message"`
+        );
       }
+
+      const [, seq, rawHash, message = ''] = match;
+      const hash = rawHash.toLowerCase();
+
+      commits.push({
+        seq,
+        hash,
+        message,
+        branchName: `${seq}-${hash}`,
+      });
     }
 
     return commits;
@@ -70,9 +75,8 @@ export async function writeCommitsFile(
  */
 export function formatCommits(rawCommits: string[]): CommitInfo[] {
   return rawCommits.map((commit, index) => {
-    const parts = commit.split(/\s+/);
-    const hash = parts[0];
-    const message = parts.slice(1).join(' ');
+    const [hash = '', ...messageParts] = commit.split(/\s+/);
+    const message = messageParts.join(' ');
     const seq = String(index + 1).padStart(4, '0');
 
     return {

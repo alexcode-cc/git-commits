@@ -2,12 +2,12 @@
  * Git 操作工具函數
  */
 
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import type { GitExecResult } from '../types.js';
 import { t } from '../i18n/index.js';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 /**
  * 執行 Git 命令
@@ -16,7 +16,7 @@ const execAsync = promisify(exec);
  */
 export async function execGit(args: string[]): Promise<GitExecResult> {
   try {
-    const { stdout, stderr } = await execAsync(`git ${args.join(' ')}`, {
+    const { stdout, stderr } = await execFileAsync('git', args, {
       encoding: 'utf-8',
       maxBuffer: 10 * 1024 * 1024, // 10MB buffer
     });
@@ -125,7 +125,7 @@ export async function createBranch(
   branchName: string,
   commitHash: string
 ): Promise<{ success: boolean; error?: string; alreadyExists?: boolean }> {
-  const result = await execGit(['checkout', '-b', branchName, commitHash]);
+  const result = await execGit(['branch', branchName, commitHash]);
 
   if (result.exitCode === 0) {
     return { success: true };

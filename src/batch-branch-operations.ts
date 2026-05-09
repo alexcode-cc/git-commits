@@ -16,6 +16,7 @@ import {
   createBranch,
   switchBranch,
   deleteBranch,
+  getLocalBranches,
 } from './utils/git.js';
 import { parseCommitsFile, filterCommitsByRange } from './utils/file.js';
 import { confirm, printSeparator } from './utils/prompt.js';
@@ -135,10 +136,6 @@ export async function createBranches(
     const result = await createBranch(branchName, hash);
 
     if (result.success) {
-      // 切換回原分支
-      if (currentBranch) {
-        await switchBranch(currentBranch);
-      }
       console.log(chalk.green(t('branch.created')));
       successCount++;
     } else if (result.alreadyExists) {
@@ -282,19 +279,32 @@ export async function deleteBranches(
   let successCount = 0;
   let failCount = 0;
   const skipped: SkippedItem[] = [];
+  const branchNamesToDelete = new Set(branchesToDelete.map((commit) => commit.branchName));
+
+  async function switchAwayFromBranch(branchName: string): Promise<boolean> {
+    const localBranches = await getLocalBranches();
+    const fallbackBranch = localBranches.find(
+      (branch) => branch !== branchName && !branchNamesToDelete.has(branch)
+    );
+
+    if (!fallbackBranch) {
+      return false;
+    }
+
+    return switchBranch(fallbackBranch);
+  }
 
   for (const commit of branchesToDelete) {
     const { branchName, seq } = commit;
 
     // 如果當前在要刪除的分支上，先切換到其他分支
     if (currentBranch === branchName) {
-      const switched =
-        (await switchBranch('develop')) || (await switchBranch('main'));
+      const switched = await switchAwayFromBranch(branchName);
       if (!switched) {
         console.log(
           chalk.red(`${t('common.error')}: ${t('git.cannotSwitch', { branch: branchName })}`)
         );
-        skipped.push({ seq, branchName, reason: '無法切換分支' });
+        skipped.push({ seq, branchName, reason: t('git.cannotSwitch', { branch: branchName }) });
         failCount++;
         continue;
       }

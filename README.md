@@ -102,7 +102,7 @@ import {
   generateCommits,
   createBranches,
   deleteBranches,
-} from 'git-commits';
+} from '@alexcode-cc/git-commits';
 
 // Generate commit list
 const commits = await generateCommits({
@@ -137,7 +137,7 @@ import {
   getCurrentBranch,
   createBranch,
   deleteBranch,
-} from 'git-commits';
+} from '@alexcode-cc/git-commits';
 
 // Check if in a Git repository
 if (await isGitRepository()) {
@@ -254,6 +254,12 @@ npm run dev
 
 # Type checking
 npm run typecheck
+
+# Run tests
+npm test
+
+# Run lint
+npm run lint
 ```
 
 ### Testing CLI in Development Mode
@@ -323,9 +329,9 @@ MIT License
 
 ## Related Links
 
-- [GitHub Repository](https://github.com/spec-kit/git-commits)
+- [GitHub Repository](https://github.com/alexcode-cc/git-commits)
 - [npm Package](https://www.npmjs.com/package/@alexcode-cc/git-commits)
-- [Issue Tracker](https://github.com/spec-kit/git-commits/issues)
+- [Issue Tracker](https://github.com/alexcode-cc/git-commits/issues)
 
 ## Legacy Scripts
 

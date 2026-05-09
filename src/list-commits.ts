@@ -71,7 +71,7 @@ export async function listAllCommitsCLI(
         try {
           commits = await parseCommitsFile("git-commits.txt");
           file = "git-commits.txt";
-        } catch (innerE) {
+        } catch (_innerE) {
           // 如果兩個都找不到，拋出原始錯誤
           throw e;
         }
